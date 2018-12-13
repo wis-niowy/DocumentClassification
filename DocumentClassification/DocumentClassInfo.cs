@@ -38,7 +38,7 @@ namespace DocumentClassification
         /// <returns></returns>
         public double GetPriorProbability(int totalNumberOfDocuemnts)
         {
-            return DocumentList.Count / (double)totalNumberOfDocuemnts;
+            return (double)DocumentList.Count / totalNumberOfDocuemnts;
         }
         /// <summary>
         /// Calculates probability: P(word|class)
@@ -47,7 +47,7 @@ namespace DocumentClassification
         /// <returns></returns>
         public double GetConditinalProbability(string word)
         {
-            return (GetWordOccurancesNumber(word) + 1) / (TotalWordsInClass + TotalUniqueWordsInClass);
+            return (double)(GetWordOccurancesNumber(word) + 1) / (TotalWordsInClass + TotalUniqueWordsInClass);
         }
         public int GetWordOccurancesNumber(string word)
         {

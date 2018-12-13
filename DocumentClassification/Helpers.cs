@@ -12,7 +12,7 @@ namespace DocumentClassification
     {
         public static List<String> ExtractFeatures(this String text)
         {
-            return Regex.Replace(text, "\\p{P}+", "").Split(' ').ToList();
+            return Regex.Replace(text, @"[^\w+]", " ").Split(' ').ToList();
         }
     }
 

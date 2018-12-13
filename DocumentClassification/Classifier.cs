@@ -19,8 +19,8 @@ namespace DocumentClassification
             docClasses = trainDocs.GroupBy(d => d.DocumentClass).Select(g => new DocumentClassInfo(g.Key, g.Select(d => d).ToList())).ToList();
             vocabulary = trainDocs.Select(d => d.DocumentContent).SelectMany(c => c.ExtractFeatures()).GroupBy(w => w).Select(w => w.Key).ToList();
             numberOfDocs = trainDocs.Count;
-            PriorProbabilities = new Dictionary<string, double>();
-            ConditionalProbabilities = new Dictionary<string, Dictionary<string, double>>();
+            PriorProbabilities = new Dictionary<string, double>(); // prior probability of each class
+            ConditionalProbabilities = new Dictionary<string, Dictionary<string, double>>(); // likelihood of each feature in each class
         }
 
         public void TrainClassifier()
@@ -45,12 +45,13 @@ namespace DocumentClassification
         public string ClassifyDocument(string newDocumentContent)
         {
             Dictionary<string, double> classProbability = new Dictionary<string, double>();
-            var words = newDocumentContent.ExtractFeatures();
+            var words = newDocumentContent.ExtractFeatures().GroupBy(w => w).Select(w => w.Key).ToList();
             foreach (var docClass in docClasses)
             {
                 classProbability.Add(docClass.Name, CalculateClassBelongingness(docClass, words));
             }
-            return classProbability.OrderByDescending(c => c.Value).FirstOrDefault().Key;
+            var result = classProbability.OrderByDescending(c => c.Value).FirstOrDefault().Key;
+            return result;
         }
 
         private double CalculateClassBelongingness(DocumentClassInfo docClass, List<string> docWords)
@@ -58,7 +59,8 @@ namespace DocumentClassification
             var result = Math.Log10(PriorProbabilities[docClass.Name]);
             foreach (var word in docWords)
             {
-                result += Math.Log10(ConditionalProbabilities[word][docClass.Name]);
+                var factor = ConditionalProbabilities.Keys.Contains(word) ? ConditionalProbabilities[word][docClass.Name] : 1;
+                result += Math.Log10(factor);
             }
             return result;
         }
